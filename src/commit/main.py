@@ -91,6 +91,7 @@ def main() -> None:
     """The main function for the commit package."""
     parser = argparse.ArgumentParser(description="Write correct commit messages with gitmojis with ease.")
     parser.add_argument("-a", action="store_true", help="Stage all changes automatically.")
+    parser.add_argument("--no-scope", "-n", action="store_true", help="Do not include a scope in the commit message.")
     parser.add_argument(
         "--footer",
         "-f",
@@ -104,7 +105,7 @@ def main() -> None:
         help="Mark the commit as a breaking change.",
     )
     args = parser.parse_args()
-    run(args.footer, args.breaking, args.a)
+    run(args.footer, args.breaking, args.a, args.no_scope)
 
 
 def run_precommit() -> bool:
@@ -122,13 +123,14 @@ def run_precommit() -> bool:
     return result.returncode == 0
 
 
-def run(include_footer: bool, breaking_change: bool, stage_all: bool) -> None:
+def run(include_footer: bool, breaking_change: bool, stage_all: bool, no_scope: bool) -> None:
     """Run the commit process.
 
     Args:
         include_footer (bool): Determine if a footer should be included in the commit message.
         breaking_change (bool): Determine if the commit is a breaking change.
         stage_all (bool): Determine if all changes should be staged automatically.
+        no_scope (bool): Determine if a scope should be included in the commit message.
     """
     if stage_all:
         subprocess.run(["git", "add", "."], check=False)  # noqa: S607 S603
@@ -140,14 +142,17 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool) -> None:
     (_, index, _) = prompt.show_with_filter(commit_types, "Select the type of change that you are committing: ")
     commit_type = commit_types[index].split(":")[0]
 
-    scopes = [*commits.get_possible_scopes(), "Create new scope from current input"]
-    (text, index, _) = prompt.show(
-        scopes,
-        "Select the scope of the change that you are committing: ",
-        on_update=new_filter_function(scopes),
-    )
-    scope = scopes[index] if index != len(scopes) - 1 else text
-    scope = "" if scope == "None" else f"({scope})"
+    if not no_scope:
+        scopes = [*commits.get_possible_scopes(), "Create new scope from current input"]
+        (text, index, _) = prompt.show(
+            scopes,
+            "Select the scope of the change that you are committing: ",
+            on_update=new_filter_function(scopes),
+        )
+        scope = scopes[index] if index != len(scopes) - 1 else text
+        scope = "" if scope == "None" else f"({scope})"
+    else:
+        scope = ""
 
     ok = False
     while not ok:
