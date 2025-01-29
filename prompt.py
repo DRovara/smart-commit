@@ -120,6 +120,7 @@ def show(options: list[str], header: str, allow_keys: bool = True, on_update: Ca
     if not allow_keys:
         return_caret()
     refresh()
+    print(header + f"{STYLE_BOLD}" + options[index] + f"{COLOUR_RESET}")
         
     index = original_options.index(options[index])
     return state, index
