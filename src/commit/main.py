@@ -131,7 +131,7 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool) -> None:
         stage_all (bool): Determine if all changes should be staged automatically.
     """
     if stage_all:
-        subprocess.run(["git", "add", "."], check=True)  # noqa: S607 S603
+        subprocess.run(["git", "add", "."], check=False)  # noqa: S607 S603
 
     if not run_precommit():
         sys.exit(1)
@@ -182,9 +182,10 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool) -> None:
     if footer:
         full_message += f"\n\n{footer}"
 
-    result = subprocess.run(["git", "commit", "-m", full_message], capture_output=True, text=True, check=True)  # noqa: S603 S607
+    result = subprocess.run(["git", "commit", "-m", full_message], capture_output=True, text=True, check=False)  # noqa: S603 S607
     if result.returncode != 0:
         print(result.stderr)
+        print(result.stdout)
     else:
         print("Committed successfully:\n", full_message, sep="")
 
