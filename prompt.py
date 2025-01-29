@@ -5,8 +5,8 @@ COLOUR_YELLOW = "\033[33m"
 STYLE_BOLD = "\033[1m"
 COLOUR_RESET = "\033[0m"
 
-def GET_FILTER_RULE(options: list[str]) -> Callable[[str, int], tuple[list[str], int]]:
-    def fun(state, index):
+def GET_FILTER_RULE(options: list[str]) -> Callable[[str, int, dict[str, any]], tuple[list[str], int]]:
+    def fun(state, index, _tags):
         old_item = options[index]
         filtered = [option for option in options if state.lower() in option.lower()]
         index = filtered.index(old_item) if old_item in filtered else 0
@@ -40,12 +40,13 @@ def getchar():
     finally:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
-def show(options: list[str], header: str, allow_keys: bool = True, on_update: Callable[[str, int], tuple[list[str], int]] = None) -> tuple[str, int]:
+def show(options: list[str], header: str, allow_keys: bool = True, on_update: Callable[[str, int, dict[str, any]], tuple[list[str], int]] = None, wrap_above: bool = True, wrap_below: bool = True) -> tuple[str, int, str]:
     state = ""
     running = True
     index = 0
     last_options = options
     original_options = options
+    tags: dict[str, any] = {}
 
     def print_state():
         print(header + state)
@@ -95,17 +96,20 @@ def show(options: list[str], header: str, allow_keys: bool = True, on_update: Ca
                 state = state[:-1]
             elif key == "up":
                 index -= 1
+                if index < 0:
+                    index = 0 if not wrap_above else len(options) - 1
             elif key == "down":
                 index += 1
+                if index >= len(options):
+                    index = len(options) - 1 if not wrap_below else 0
             elif key == "return":
                 running = False
                 show_cursor()
             else:
                 continue
 
-            index = (index + len(options)) % len(options)
             if on_update:
-                options, index = on_update(state, index)
+                options, index = on_update(state, index, tags)
             if len(options) == 0:
                 options = ["---"]
             if index < 0 or index >= len(options):
@@ -122,8 +126,9 @@ def show(options: list[str], header: str, allow_keys: bool = True, on_update: Ca
     refresh()
     print(header + f"{STYLE_BOLD}" + options[index] + f"{COLOUR_RESET}")
         
-    index = original_options.index(options[index])
-    return state, index
+    if options[index] in original_options:
+        index = original_options.index(options[index])
+    return state, index, options[index]
 
-def show_with_filter(options: list[str], header: str) -> tuple[str, int]:
+def show_with_filter(options: list[str], header: str) -> tuple[str, int, str]:
     return show(options, header, True, GET_FILTER_RULE(options))
