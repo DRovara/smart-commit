@@ -132,3 +132,16 @@ def show(options: list[str], header: str, allow_keys: bool = True, on_update: Ca
 
 def show_with_filter(options: list[str], header: str) -> tuple[str, int, str]:
     return show(options, header, True, GET_FILTER_RULE(options))
+
+def multiline_input() -> str:
+    result = ""
+    first = True
+    while True:
+        line = input()
+        if not line:
+            break
+        if not first:
+            result += "\n"
+        first = False
+        result += line
+    return result

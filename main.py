@@ -1,4 +1,6 @@
 from typing import Callable
+import subprocess
+
 import prompt
 import commits
 
@@ -29,6 +31,7 @@ def show_more_filter_function(options: list[str]) -> Callable[[str, int, dict[st
     return fun
 
 INCLUDE_FOOTER = False
+BREAKING_CHANGE = False
 
 def main():
     commit_types = commits.get_commit_types()
@@ -51,14 +54,27 @@ def main():
     (_, index, gitmoji) = prompt.show(gitmojis, "Choose a gitmoji: ", on_update=show_more_filter_function(gitmojis), wrap_above=False, wrap_below=False)
     gitmoji = gitmoji.split("-")[1].strip()
 
-    description = input("(optional) Enter a longer description of the changes made in this commit:\n")
+    print("(optional) Enter a longer description of the changes made in this commit (empty line to exit):")
+    description = prompt.multiline_input()
 
     if INCLUDE_FOOTER:
         footer = input("Footer information (referenced issues, breaking changes, etc.):\n")
     else:
         footer = ""
 
-    print(f"{commit_type}{scope}: {gitmoji} {msg}")
+    breaking = "!" if BREAKING_CHANGE else ""
+
+    full_message = f"{commit_type}{scope}:{breaking} {gitmoji} {msg}"
+    if description:
+        full_message += f"\n\n{description}"
+    if footer:
+        full_message += f"\n\n{footer}"
+
+    result = subprocess.run(["git", "commit", "-m", full_message], capture_output=True, text=True)
+    if result.returncode != 0:
+        print(result.stderr)
+    else:
+        print("Commited successfully:\n", full_message, sep="")
 
 if __name__ == "__main__":
     main()
