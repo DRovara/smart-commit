@@ -1,3 +1,5 @@
+import git
+
 def get_commit_types() -> list[str]:
     return [
         "feat:     A new feature",
@@ -14,10 +16,22 @@ def get_commit_types() -> list[str]:
     ]
 
 def get_possible_scopes() -> list[str]:
+    def get_scope(message: str) -> str:
+        front = message.split(":")[0]
+        if '(' in front and ')' in front:
+            return front[front.index("(") + 1:front.index(")")]
+        return ""
+    repo = git.Repo('.')
+    previous_scopes = [get_scope(commit.message) for commit in repo.iter_commits()]
+    options = []
+    for prev in previous_scopes:
+        if not prev:
+            continue
+        if prev not in options:
+            options.append(prev)
     return [
-        "None",
-        "frontend"
-    ]
+        "None"
+    ] + options
 
 def check_commit_message(msg: str) -> tuple[bool, str]:
     if msg.startswith("!"):
