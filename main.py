@@ -1,5 +1,6 @@
 from typing import Callable
 import subprocess
+import argparse
 
 import prompt
 import commits
@@ -30,10 +31,18 @@ def show_more_filter_function(options: list[str]) -> Callable[[str, int, dict[st
         return new_options, index
     return fun
 
-INCLUDE_FOOTER = False
-BREAKING_CHANGE = False
-
 def main():
+    parser = argparse.ArgumentParser(description="Write correct commit messages with gitmojis with ease.")
+    parser.add_argument("-a", action="store_true", help="Stage all changes automatically.")
+    parser.add_argument("--footer", "-f", action="store_true", help="Include a footer in the commit message.")
+    parser.add_argument("--breaking", "-b", action="store_true", help="Mark the commit as a breaking change.")
+    args = parser.parse_args()
+    run(args.footer, args.breaking, args.a)
+
+def run(include_footer: bool, breaking_change: bool, stage_all: bool):
+    if stage_all:
+        subprocess.run(["git", "add", "."])
+
     commit_types = commits.get_commit_types()
     (_, index, _) = prompt.show_with_filter(commit_types, "Select the type of change that you are committing: ")
     commit_type = commit_types[index].split(":")[0]
@@ -57,12 +66,12 @@ def main():
     print("(optional) Enter a longer description of the changes made in this commit (empty line to exit):")
     description = prompt.multiline_input()
 
-    if INCLUDE_FOOTER:
+    if include_footer or breaking_change:
         footer = input("Footer information (referenced issues, breaking changes, etc.):\n")
     else:
         footer = ""
 
-    breaking = "!" if BREAKING_CHANGE else ""
+    breaking = "!" if breaking_change else ""
 
     full_message = f"{commit_type}{scope}:{breaking} {gitmoji} {msg}"
     if description:
