@@ -17,31 +17,27 @@ STYLE_BOLD = "\033[1m"
 COLOUR_RESET = "\033[0m"
 
 
-def get_filter_rule(
-    options: list[str],
-) -> Callable[[str, int, dict[str, Any]], tuple[list[str], int]]:
+def get_filter_rule() -> Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]:
     """A simple filter function for prompts.
 
-    Args:
-        options (list[str]): The list of options to filter.
-
     Returns:
-        Callable[[str, int, dict[str, Any]], tuple[list[str], int]]: The filter function.
+        Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]: The filter function.
     """
 
-    def fun(state: str, index: int, _tags: dict[str, Any]) -> tuple[list[str], int]:
+    def fun(state: str, index: int, current_options: list[str], _tags: dict[str, Any]) -> tuple[list[str], int]:
         """The filter function the be returned.
 
         Args:
             state (str): The current state of the prompt.
             index (int): The current index of the prompt.
+            current_options (list[str]): The current options of the prompt.
             _tags (dict[str, Any]): The tags of the prompt.
 
         Returns:
             tuple[list[str], int]: The filter result.
         """
-        old_item = options[index]
-        filtered = [option for option in options if state.lower() in option.lower()]
+        old_item = current_options[index]
+        filtered = [option for option in current_options if state.lower() in option.lower()]
         index = filtered.index(old_item) if old_item in filtered else 0
         return filtered, index
 
@@ -85,7 +81,7 @@ def show(
     options: list[str],
     header: str,
     allow_keys: bool = True,
-    on_update: Callable[[str, int, dict[str, Any]], tuple[list[str], int]] | None = None,
+    on_update: Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]] | None = None,
     wrap_above: bool = True,
     wrap_below: bool = True,
 ) -> tuple[str, int, str]:
@@ -95,7 +91,7 @@ def show(
         options (list[str]): The list of options to display.
         header (str): The header to display above the options.
         allow_keys (bool, optional): Determines, whether keypresses should be registered and displayed (e.g. for filters). Defaults to True.
-        on_update (Callable[[str, int, dict[str, Any]], tuple[list[str], int]] | None, optional): A function to be called when the user gives any input. Defaults to None.
+        on_update (Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]] | None, optional): A function to be called when the user gives any input. Defaults to None.
         wrap_above (bool, optional): Determines, whether moving above the first element will wrap to the end. Defaults to True.
         wrap_below (bool, optional): Determines, whether moving below the last element will wrap to the start. Defaults to True.
 
@@ -169,7 +165,7 @@ def show(
                 continue
 
             if on_update:
-                options, index = on_update(state, index, tags)
+                options, index = on_update(state, index, options, tags)
             if len(options) == 0:
                 options = ["---"]
             if index < 0 or index >= len(options):
@@ -201,7 +197,7 @@ def show_with_filter(options: list[str], header: str) -> tuple[str, int, str]:
     Returns:
         tuple[str, int, str]: The state, index and selected option.
     """
-    return show(options, header, True, get_filter_rule(options))
+    return show(options, header, True, get_filter_rule())
 
 
 def multiline_input() -> str:

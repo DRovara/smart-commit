@@ -15,61 +15,52 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-def new_filter_function(
-    options: list[str],
-) -> Callable[[str, int, dict[str, Any]], tuple[list[str], int]]:
+def new_filter_function() -> Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]:
     """A filter function that always keeps the last option in the list.
 
-    Args:
-        options (list[str]): The list of options to filter.
-
     Returns:
-        Callable[[str, int, dict[str, Any]], tuple[list[str], int]]: The filter function.
+        Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]: The filter function.
     """
 
-    def fun(state: str, index: int, tags: dict[str, Any]) -> tuple[list[str], int]:
+    def fun(state: str, index: int, current_options: list[str], tags: dict[str, Any]) -> tuple[list[str], int]:
         """The filter function the be returned.
 
         Args:
             state (str): The current state of the prompt.
             index (int): The current index of the prompt.
+            current_options (list[str]): The current options of the prompt.
             tags (dict[str, Any]): The tags of the prompt.
 
         Returns:
             tuple[list[str], int]: The filter result.
         """
-        (new_options, new_index) = prompt.get_filter_rule(options)(state, index, tags)
-        if options[-1] not in new_options:
-            new_options.append(options[-1])
+        (new_options, new_index) = prompt.get_filter_rule()(state, index, current_options, tags)
+        if current_options[-1] not in new_options:
+            new_options.append(current_options[-1])
         return new_options, new_index
 
     return fun
 
 
-def show_more_filter_function(
-    options: list[str],
-) -> Callable[[str, int, dict[str, Any]], tuple[list[str], int]]:
+def show_more_filter_function() -> Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]:
     """A filter function that shows more options when the last option is selected.
 
-    Args:
-        options (list[str]): The list of options to filter.
-
     Returns:
-        Callable[[str, int, dict[str, Any]], tuple[list[str], int]]: The filter function.
+        Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]: The filter function.
     """
 
-    def fun(state: str, index: int, tags: dict[str, Any]) -> tuple[list[str], int]:
+    def fun(state: str, index: int, current_options: list[str], tags: dict[str, Any]) -> tuple[list[str], int]:
         """The filter function the be returned.
 
         Args:
             state (str): The current state of the prompt.
             index (int): The current index of the prompt.
+            current_options (list[str]): The current options of the prompt.
             tags (dict[str, Any]): The tags of the prompt.
 
         Returns:
             tuple[list[str], int]: The filter result.
         """
-        current_options = tags.get("options", options)
         current_selection = current_options[index]
         page = tags.get("page", 0)
         if index != 0 and current_options[index] == "...":
@@ -81,7 +72,6 @@ def show_more_filter_function(
             index = new_options.index(current_selection)
         else:
             index = 0
-        tags["options"] = new_options
         return new_options, index
 
     return fun
@@ -105,7 +95,10 @@ def main() -> None:
         help="Mark the commit as a breaking change.",
     )
     args = parser.parse_args()
-    run(args.footer, args.breaking, args.a, args.no_scope)
+    try:
+        run(args.footer, args.breaking, args.a, args.no_scope)
+    except KeyboardInterrupt:
+        print("\nExiting...")
 
 
 def run_precommit() -> bool:
@@ -147,7 +140,7 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool, no_scope: 
         (text, index, _) = prompt.show(
             scopes,
             "Select the scope of the change that you are committing: ",
-            on_update=new_filter_function(scopes),
+            on_update=new_filter_function(),
         )
         scope = scopes[index] if index != len(scopes) - 1 else text
         scope = "" if scope == "None" else f"({scope})"
@@ -165,7 +158,7 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool, no_scope: 
     (_, index, gitmoji) = prompt.show(
         gitmojis,
         "Choose a gitmoji: ",
-        on_update=show_more_filter_function(gitmojis),
+        on_update=show_more_filter_function(),
         wrap_above=False,
         wrap_below=False,
     )
