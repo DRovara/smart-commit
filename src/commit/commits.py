@@ -1,6 +1,16 @@
-import git
+"""Provides functionality for working with git commits."""
+
+from __future__ import annotations
+
+import git  # type: ignore[import-not-found]
+
 
 def get_commit_types() -> list[str]:
+    """Get a list of all possible commit types.
+
+    Returns:
+        list[str]: A list of all possible commit types.
+    """
     return [
         "feat:     A new feature",
         "fix:      A bug fix",
@@ -15,13 +25,21 @@ def get_commit_types() -> list[str]:
         "revert:   Revert to a commit",
     ]
 
+
 def get_possible_scopes() -> list[str]:
+    """Get a list of all scopes used in previous commits.
+
+    Returns:
+        list[str]: A list of all scopes used in previous commits.
+    """
+
     def get_scope(message: str) -> str:
         front = message.split(":")[0]
-        if '(' in front and ')' in front:
-            return front[front.index("(") + 1:front.index(")")]
+        if "(" in front and ")" in front:
+            return front[front.index("(") + 1 : front.index(")")]
         return ""
-    repo = git.Repo('.')
+
+    repo = git.Repo(".")
     previous_scopes = [get_scope(commit.message) for commit in repo.iter_commits()]
     options = []
     for prev in previous_scopes:
@@ -29,11 +47,18 @@ def get_possible_scopes() -> list[str]:
             continue
         if prev not in options:
             options.append(prev)
-    return [
-        "None"
-    ] + options
+    return ["None", *options]
+
 
 def check_commit_message(msg: str) -> tuple[bool, str]:
+    """Check if a commit message is valid.
+
+    Args:
+        msg (str): The commit message to check.
+
+    Returns:
+        tuple[bool, str]: A tuple containing a boolean indicating if the message is valid and the message itself.
+    """
     if msg.startswith("!"):
         return True, msg[1:]
     msg = msg.strip()
@@ -45,14 +70,24 @@ def check_commit_message(msg: str) -> tuple[bool, str]:
         return False, msg
     return True, msg
 
-def get_gitmojis(filter: str = "", start_index: int = 0) -> list[str]:
+
+def get_gitmojis(filter_string: str = "", start_index: int = 0) -> list[str]:
+    """Get a list of 7 gitmojis, ordered by frequency of use in previous commits.
+
+    Args:
+        filter_string (str, optional): A filter to apply to the list. Defaults to "".
+        start_index (int, optional): The index to start from. Defaults to 0.
+
+    Returns:
+        list[str]: _description_
+    """
     gitmoji_list = get_gitmoji_list()
     gitmoji_dict = {}
     for gm in gitmoji_list:
         key = gm.split(" - ")[1].strip()
         gitmoji_dict[key] = gm
-    gitmoji_count = {gm: 0 for gm in gitmoji_dict.keys()}
-    repo = git.Repo('.')
+    gitmoji_count = dict.fromkeys(gitmoji_dict.keys(), 0)
+    repo = git.Repo(".")
     for commit in repo.iter_commits():
         message = commit.message
         if message.count(":") < 3:
@@ -67,12 +102,18 @@ def get_gitmojis(filter: str = "", start_index: int = 0) -> list[str]:
         gitmoji_count[gitmoji] += 1
     gitmoji_list = list(gitmoji_dict.values())
     gitmoji_list.sort(key=lambda x: gitmoji_count[x.split(" - ")[1].strip()], reverse=True)
-    gitmoji_list = [gm for gm in gitmoji_list if filter.lower() in gm.lower()]
+    gitmoji_list = [gm for gm in gitmoji_list if filter_string.lower() in gm.lower()]
     if start_index >= len(gitmoji_list):
         start_index = 0
-    return gitmoji_list[start_index:start_index + 7] + ["..."]
+    return gitmoji_list[start_index : start_index + 7] + ["..."]
+
 
 def get_gitmoji_list() -> list[str]:
+    """Get a list of all possible gitmojis.
+
+    Returns:
+        list[str]: A list of all possible gitmojis.
+    """
     return [
         "🎨 - :art: - Improve structure / format of the code.",
         "⚡️ - :zap: - Improve performance.",
@@ -97,8 +138,8 @@ def get_gitmoji_list() -> list[str]:
         "👷 - :construction_worker: - Add or update CI build system.",
         "📈 - :chart_with_upwards_trend: - Add or update analytics or track code.",
         "♻️ - :recycle: - Refactor code.",
-        "➕ - :heavy_plus_sign: - Add a dependency.",
-        "➖ - :heavy_minus_sign: - Remove a dependency.",
+        "➕ - :heavy_plus_sign: - Add a dependency.",  # noqa: RUF001
+        "➖ - :heavy_minus_sign: - Remove a dependency.",  # noqa: RUF001
         "🔧 - :wrench: - Add or update configuration files.",
         "🔨 - :hammer: - Add or update development scripts.",
         "🌐 - :globe_with_meridians: - Internationalization and localization.",
