@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from . import commits
 from .main import main
 
-__all__ = ["main"]
+__all__ = ["commits", "main"]
