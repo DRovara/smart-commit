@@ -40,7 +40,7 @@ def get_possible_scopes() -> list[str]:
         return ""
 
     repo = git.Repo(".")
-    previous_scopes = [get_scope(commit.message) for commit in repo.iter_commits()]
+    previous_scopes = [get_scope(commit.message) for commit in repo.iter_commits()] if repo.head.is_valid() else []
     options = []
     for prev in previous_scopes:
         if not prev:
@@ -88,7 +88,7 @@ def get_gitmojis(filter_string: str = "", start_index: int = 0) -> list[str]:
         gitmoji_dict[key] = gm
     gitmoji_count = dict.fromkeys(gitmoji_dict.keys(), 0)
     repo = git.Repo(".")
-    for commit in repo.iter_commits():
+    for commit in repo.iter_commits() if repo.head.is_valid() else []:
         message = commit.message
         if message.count(":") < 3:
             continue
