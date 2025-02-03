@@ -181,10 +181,11 @@ def show(
         return_caret()
     refresh()
     print(header + f"{STYLE_BOLD}" + options[index] + f"{COLOUR_RESET}")
+    result = options[index]
 
     if options[index] in original_options:
         index = original_options.index(options[index])
-    return state, index, original_options[index]
+    return state, index, result
 
 
 def show_with_filter(options: list[str], header: str) -> tuple[str, int, str]:
