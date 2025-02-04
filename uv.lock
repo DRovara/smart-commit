@@ -1144,6 +1144,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "gitpython" },
+    { name = "pyyaml" },
 ]
 
 [package.optional-dependencies]
@@ -1168,6 +1169,7 @@ requires-dist = [
     { name = "ipykernel", marker = "extra == 'docs'" },
     { name = "nbsphinx", marker = "extra == 'docs'" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=7.2" },
+    { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "setuptools-scm", marker = "extra == 'docs'", specifier = ">=8.1" },
     { name = "sphinx-autodoc-typehints", marker = "extra == 'docs'" },
     { name = "sphinx-copybutton", marker = "extra == 'docs'", specifier = ">=0.5" },

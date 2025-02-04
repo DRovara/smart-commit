@@ -85,6 +85,8 @@ repos:
           - types-Pillow
           - referencing
           - nox
+          - pyyaml
+          - types-PyYAML
 
   # Catch common capitalization mistakes
   - repo: local

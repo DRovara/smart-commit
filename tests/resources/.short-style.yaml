@@ -1,0 +1,18 @@
+types:
+  exclude: chore
+  add:
+    name: my-commit-type
+    description: My custom commit type
+  priority: feat
+
+scopes:
+  exclude: my-excluded-scope
+  add: my-new-scope
+
+gitmojis:
+  exclude: art
+  add:
+    icon: 🎨
+    name: my-gitmoji
+    description: My custom gitmoji.
+  priority: sparkles
