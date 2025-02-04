@@ -125,6 +125,10 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool, no_scope: 
         stage_all (bool): Determine if all changes should be staged automatically.
         no_scope (bool): Determine if a scope should be included in the commit message.
     """
+    if commits.get_repo() is None:
+        print("Error: Not a git repository.")
+        sys.exit(1)
+
     if stage_all:
         subprocess.run(["git", "add", "."], check=False)  # noqa: S607 S603
 

@@ -2,7 +2,25 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import git  # type: ignore[import-not-found]
+
+
+def get_repo() -> git.Repo:
+    """Get the current git repository object.
+
+    Returns:
+        git.Repo: The git repository object.
+    """
+    current = Path.cwd()
+    while True:
+        if any(current.glob(".git")):
+            return git.Repo(current)
+        if current.parent == current:
+            break
+        current = current.parent
+    return None
 
 
 def get_commit_types() -> list[str]:
@@ -39,7 +57,7 @@ def get_possible_scopes() -> list[str]:
             return front[front.index("(") + 1 : front.index(")")]
         return ""
 
-    repo = git.Repo(".")
+    repo = get_repo()
     previous_scopes = [get_scope(commit.message) for commit in repo.iter_commits()] if repo.head.is_valid() else []
     options = []
     for prev in previous_scopes:
@@ -87,7 +105,7 @@ def get_gitmojis(filter_string: str = "", start_index: int = 0) -> list[str]:
         key = gm.split(" - ")[1].strip()
         gitmoji_dict[key] = gm
     gitmoji_count = dict.fromkeys(gitmoji_dict.keys(), 0)
-    repo = git.Repo(".")
+    repo = get_repo()
     for commit in repo.iter_commits() if repo.head.is_valid() else []:
         message = commit.message
         if message.count(":") < 3:
