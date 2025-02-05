@@ -97,8 +97,9 @@ def get_possible_scopes() -> list[str]:
         if scope not in options:
             options.append(scope)
     for scope in conf.excluded_scopes:
-        if scope in options:
-            options.remove(scope)
+        scopes_to_remove = [option for option in options if re.fullmatch(scope, option)]
+        for option in scopes_to_remove:
+            options.remove(option)
     if conf.prohibit_no_scope:
         return options
     return ["None", *options]
