@@ -63,6 +63,7 @@ types:
 scopes:
   exclude:
     - deps
+    - '#\d+'
   add:
     - my-new-scope
   prohibit-no-scope: true
