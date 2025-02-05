@@ -5,7 +5,6 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![CI](https://img.shields.io/github/actions/workflow/status/DRovara/smart-commit/ci.yml?branch=main&style=flat-square&logo=github&label=ci)](https://github.com/DRovara/smart-commit/actions/workflows/ci.yml)
 [![CD](https://img.shields.io/github/actions/workflow/status/DRovara/smart-commit/cd.yml?style=flat-square&logo=github&label=cd)](https://github.com/DRovara/smart-commit/actions/workflows/cd.yml)
-[![Documentation](https://img.shields.io/readthedocs/smart-commit?logo=readthedocs&style=flat-square)](https://mqt.readthedocs.io/projects/debugger)
 <a href="https://gitmoji.dev">
 <img
     src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square"
