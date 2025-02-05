@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from commit import commits, prompt
+from commit import commits, config, prompt
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -129,6 +129,8 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool, no_scope: 
         print("Error: Not a git repository.")
         sys.exit(1)
 
+    conf = config.find_config()
+
     if stage_all:
         subprocess.run(["git", "add", "."], check=False)  # noqa: S607 S603
 
@@ -171,7 +173,7 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool, no_scope: 
     print("(optional) Enter a longer description of the changes made in this commit (empty line to exit):")
     description = prompt.multiline_input()
 
-    if include_footer or breaking_change:
+    if include_footer or breaking_change or conf.enable_footer:
         footer = input("Footer information (referenced issues, breaking changes, etc.):\n")
     else:
         footer = ""

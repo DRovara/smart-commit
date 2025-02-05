@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import git  # type: ignore[import-not-found]
+
+from commit import config
 
 
 def get_repo() -> git.Repo:
@@ -23,24 +26,48 @@ def get_repo() -> git.Repo:
     return None
 
 
+def get_standard_commit_types() -> dict[str, str]:
+    """Get a list of all standard commit types.
+
+    Returns:
+        list[str]: A list of all possible commit types.
+    """
+    return {
+        "feat": "A new feature",
+        "fix": "A bug fix",
+        "docs": "Documentation only changes",
+        "style": "Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)",
+        "refactor": "A code change that neither fixes a bug nor adds a feature",
+        "perf": "A code change that improves performance",
+        "test": "Adding missing tests or correcting existing tests",
+        "build": "Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)",
+        "ci": "Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)",
+        "chore": "Changes to the build process or auxiliary tools and libraries such as documentation generation",
+        "revert": "Revert to a commit",
+    }
+
+
 def get_commit_types() -> list[str]:
     """Get a list of all possible commit types.
 
     Returns:
         list[str]: A list of all possible commit types.
     """
+    standard = get_standard_commit_types()
+    conf = config.find_config()
+    for commit_type in conf.new_commit_types:
+        standard[commit_type.name] = commit_type.description
+    for ex_commit_type in conf.excluded_commit_types:
+        if ex_commit_type in standard:
+            del standard[ex_commit_type]
+    max_len = max(len(key) for key in standard) + 1
+
+    def fill_type(key: str) -> str:
+        return f"{(key + ':').ljust(max_len)}"
+
     return [
-        "feat:     A new feature",
-        "fix:      A bug fix",
-        "docs:     Documentation only changes",
-        "style:    Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)",
-        "refactor: A code change that neither fixes a bug nor adds a feature",
-        "perf:     A code change that improves performance",
-        "test:     Adding missing tests or correcting existing tests",
-        "build:    Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)",
-        "ci:       Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)",
-        "chore:    Changes to the build process or auxiliary tools and libraries such as documentation generation",
-        "revert:   Revert to a commit",
+        f"{fill_type(key)} {standard[key]}"
+        for key in sorted(standard.keys(), key=lambda item: item not in conf.priority_commit_types)
     ]
 
 
@@ -57,6 +84,7 @@ def get_possible_scopes() -> list[str]:
             return front[front.index("(") + 1 : front.index(")")]
         return ""
 
+    conf = config.find_config()
     repo = get_repo()
     previous_scopes = [get_scope(commit.message) for commit in repo.iter_commits()] if repo.head.is_valid() else []
     options = []
@@ -65,6 +93,14 @@ def get_possible_scopes() -> list[str]:
             continue
         if prev not in options:
             options.append(prev)
+    for scope in conf.new_scopes:
+        if scope not in options:
+            options.append(scope)
+    for scope in conf.excluded_scopes:
+        if scope in options:
+            options.remove(scope)
+    if conf.prohibit_no_scope:
+        return options
     return ["None", *options]
 
 
@@ -79,6 +115,11 @@ def check_commit_message(msg: str) -> tuple[bool, str]:
     """
     if msg.startswith("!"):
         return True, msg[1:]
+
+    conf = config.find_config()
+    if conf.message_pattern is not None:
+        return len(re.findall(conf.message_pattern, msg)) > 0, msg
+
     msg = msg.strip()
     if not msg:
         return False, msg
@@ -99,6 +140,7 @@ def get_gitmojis(filter_string: str = "", start_index: int = 0) -> list[str]:
     Returns:
         list[str]: _description_
     """
+    conf = config.find_config()
     gitmoji_list = get_gitmoji_list()
     gitmoji_dict = {}
     for gm in gitmoji_list:
@@ -118,8 +160,16 @@ def get_gitmojis(filter_string: str = "", start_index: int = 0) -> list[str]:
             gitmoji_count[gitmoji] = 0
             gitmoji_dict[gitmoji] = f"?? - {gitmoji} - Unknown gitmoji"
         gitmoji_count[gitmoji] += 1
+
+    for gm in conf.excluded_gitmojis:
+        with_colons = f":{gm}:"
+        if with_colons in gitmoji_count:
+            del gitmoji_count[with_colons]
+            del gitmoji_dict[with_colons]
+
     gitmoji_list = list(gitmoji_dict.values())
     gitmoji_list.sort(key=lambda x: gitmoji_count[x.split(" - ")[1].strip()], reverse=True)
+    gitmoji_list.sort(key=lambda x: x.split(" - ")[1].strip()[1:-1] not in conf.priority_gitmojis)
     gitmoji_list = [gm for gm in gitmoji_list if filter_string.lower() in gm.lower()]
     if start_index >= len(gitmoji_list):
         start_index = 0
@@ -132,7 +182,8 @@ def get_gitmoji_list() -> list[str]:
     Returns:
         list[str]: A list of all possible gitmojis.
     """
-    return [
+    conf = config.find_config()
+    base_list = [
         "🎨 - :art: - Improve structure / format of the code.",
         "⚡️ - :zap: - Improve performance.",
         "🔥 - :fire: - Remove code or files.",
@@ -207,3 +258,10 @@ def get_gitmoji_list() -> list[str]:
         "🧵 - :thread: - Add or update code related to multithreading or concurrency.",
         "🦺 - :safety_vest: - Add or update code related to validation.",
     ]
+    for gitmoji in conf.new_gitmojis:
+        for gm in base_list:
+            if f":{gitmoji.name}:" in gm:
+                base_list.remove(gm)
+                break
+        base_list.append(f"{gitmoji.icon} - :{gitmoji.name}: - {gitmoji.description}")
+    return base_list

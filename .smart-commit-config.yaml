@@ -14,13 +14,10 @@ types:
 
 scopes:
   exclude:
-    - my-excluded-scope
+    - deps
   add:
     - my-new-scope
-  prohibit-no-scope: true
-
-message:
-  custom-pattern: '^\w+\.'
+  prohibit-no-scope: false
 
 gitmojis:
   exclude:
@@ -38,4 +35,4 @@ gitmojis:
     - my-gitmoji
     - my-gitmoji-2
 
-enable-footer: true
+always-enable-footer: true

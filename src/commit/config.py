@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import appdirs  # type: ignore[import-untyped]
 import yaml
 
 
@@ -44,6 +45,34 @@ class Config:
     priority_gitmojis: list[str] = field(default_factory=list)
 
     enable_footer: bool = False
+
+
+def find_config() -> Config:
+    """Find the configuration for your current working directory.
+
+    Returns:
+        Config: The configuration for your current working directory.
+    """
+    current = Path.cwd()
+    while True:
+        if (current / ".smart-commit-config.yaml").exists():
+            return parse_config(current / ".smart-commit-config.yaml")
+        if (current / ".smart-commit-config.yml").exists():
+            return parse_config(current / ".smart-commit-config.yml")
+        if current.parent == current:
+            break
+        current = current.parent
+
+    # no local config found, finding global config instead.
+    config_dir = Path(appdirs.user_config_dir("smart-commit", False))
+    if not config_dir.exists():
+        config_dir.mkdir(parents=True)
+    config_file = config_dir / "config.yaml"
+    if not config_file.exists():
+        config_file = config_dir / "config.yml"
+    if config_file.exists():
+        return parse_config(config_file)
+    return Config()
 
 
 def parse_config(config: Path | str) -> Config:
@@ -179,10 +208,10 @@ def parse_config(config: Path | str) -> Config:
                     msg = "The icon must be provided without leading/trailing ':' signs."
                     raise ValueError(msg)
                 c.new_gitmojis.append(NewGitmoji(icon, name, description))
-    if "enable-footer" in data:
-        if not isinstance(data["enable-footer"], bool):
-            msg = "The enable-footer option must be a boolean."
+    if "always-enable-footer" in data:
+        if not isinstance(data["always-enable-footer"], bool):
+            msg = "The always-enable-footer option must be a boolean."
             raise ValueError(msg)
-        c.enable_footer = data["enable-footer"]
+        c.enable_footer = data["always-enable-footer"]
 
     return c

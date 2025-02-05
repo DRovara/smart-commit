@@ -87,6 +87,7 @@ repos:
           - nox
           - pyyaml
           - types-PyYAML
+          - appdirs
 
   # Catch common capitalization mistakes
   - repo: local

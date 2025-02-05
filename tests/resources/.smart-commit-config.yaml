@@ -1,0 +1,41 @@
+types:
+  exclude:
+    - chore
+    - revert
+  add:
+    - name: my-commit-type
+      description: My custom commit type
+    - name: my-other-commit-type
+      description: My other custom commit type
+  priority:
+    - feat
+    - my-commit-type
+    - my-other-commit-type
+
+scopes:
+  exclude:
+    - deps
+  add:
+    - my-new-scope
+  prohibit-no-scope: true
+
+message:
+  custom-pattern: '^\w+\.'
+
+gitmojis:
+  exclude:
+    - art
+    - fire
+  add:
+    - icon: 🎨
+      name: my-gitmoji
+      description: My custom gitmoji.
+    - icon: 🔥
+      name: my-gitmoji-2
+      description: My custom gitmoji number 2.
+  priority:
+    - sparkles
+    - my-gitmoji
+    - my-gitmoji-2
+
+always-enable-footer: true
