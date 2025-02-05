@@ -17,8 +17,11 @@ STYLE_BOLD = "\033[1m"
 COLOUR_RESET = "\033[0m"
 
 
-def get_filter_rule() -> Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]:
+def get_filter_rule(options: list[str]) -> Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]:
     """A simple filter function for prompts.
+
+    Args:
+        options (list[str]): The list of options to filter
 
     Returns:
         Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]: The filter function.
@@ -37,7 +40,7 @@ def get_filter_rule() -> Callable[[str, int, list[str], dict[str, Any]], tuple[l
             tuple[list[str], int]: The filter result.
         """
         old_item = current_options[index]
-        filtered = [option for option in current_options if state.lower() in option.lower()]
+        filtered = [option for option in options if state.lower() in option.lower()]
         index = filtered.index(old_item) if old_item in filtered else 0
         return filtered, index
 
@@ -198,7 +201,7 @@ def show_with_filter(options: list[str], header: str) -> tuple[str, int, str]:
     Returns:
         tuple[str, int, str]: The state, index and selected option.
     """
-    return show(options, header, True, get_filter_rule())
+    return show(options, header, True, get_filter_rule(options))
 
 
 def multiline_input() -> str:

@@ -15,8 +15,11 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-def new_filter_function() -> Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]:
+def new_filter_function(options: list[str]) -> Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]:
     """A filter function that always keeps the last option in the list.
+
+    Args:
+        options (list[str]): The list of options to filter
 
     Returns:
         Callable[[str, int, list[str], dict[str, Any]], tuple[list[str], int]]: The filter function.
@@ -34,7 +37,7 @@ def new_filter_function() -> Callable[[str, int, list[str], dict[str, Any]], tup
         Returns:
             tuple[list[str], int]: The filter result.
         """
-        (new_options, new_index) = prompt.get_filter_rule()(state, index, current_options, tags)
+        (new_options, new_index) = prompt.get_filter_rule(options)(state, index, current_options, tags)
         if current_options[-1] not in new_options:
             new_options.append(current_options[-1])
         return new_options, new_index
@@ -146,7 +149,7 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool, no_scope: 
         (text, index, _) = prompt.show(
             scopes,
             "Select the scope of the change that you are committing: ",
-            on_update=new_filter_function(),
+            on_update=new_filter_function(scopes),
         )
         scope = scopes[index] if index != len(scopes) - 1 else text
         scope = "" if scope == "None" else f"({scope})"
