@@ -1,10 +1,10 @@
-# smart-commit
+# quick-commit
 
-[![PyPI](https://img.shields.io/pypi/v/smart-commit?logo=pypi&style=flat-square)](https://pypi.org/project/smart-commit/)
+[![PyPI](https://img.shields.io/pypi/v/quick-commit?logo=pypi&style=flat-square)](https://pypi.org/project/quick-commit/)
 ![OS](https://img.shields.io/badge/os-linux%20%7C%20macos%20%7C%20windows-blue?style=flat-square)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![CI](https://img.shields.io/github/actions/workflow/status/DRovara/smart-commit/ci.yml?branch=main&style=flat-square&logo=github&label=ci)](https://github.com/DRovara/smart-commit/actions/workflows/ci.yml)
-[![CD](https://img.shields.io/github/actions/workflow/status/DRovara/smart-commit/cd.yml?style=flat-square&logo=github&label=cd)](https://github.com/DRovara/smart-commit/actions/workflows/cd.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/DRovara/quick-commit/ci.yml?branch=main&style=flat-square&logo=github&label=ci)](https://github.com/DRovara/quick-commit/actions/workflows/ci.yml)
+[![CD](https://img.shields.io/github/actions/workflow/status/DRovara/quick-commit/cd.yml?style=flat-square&logo=github&label=cd)](https://github.com/DRovara/quick-commit/actions/workflows/cd.yml)
 <a href="https://gitmoji.dev">
 <img
     src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square"
@@ -12,7 +12,7 @@
   />
 </a>
 
-`smart-commit` is a CLI-based git commit automation tool that helps you follow the _Conventional Commits_ specification.
+`quick-commit` is a CLI-based git commit automation tool that helps you follow the _Conventional Commits_ specification.
 
 The main features include:
 
@@ -23,28 +23,28 @@ The main features include:
 - a simple and easy-to-use interface.
 - a customisable configuration file to suit your needs.
 
-`smart-commit` is designed to help you write better commit messages and make your git history more readable and understandable with the least amount of effort.
+`quick-commit` is designed to help you write better commit messages and make your git history more readable and understandable with the least amount of effort.
 
 ## Installation
 
-To install `smart-commit`, you can use the following command:
+To install `quick-commit`, you can use the following command:
 
 ```bash
-pipx install smart-commit
+pipx install quick-commit
 ```
 
-This installs the `smart-commit` python application (requires Python 3.10 or later) and makes it available as a command-line tool.
+This installs the `quick-commit` python application (requires Python 3.10 or later) and makes it available as a command-line tool.
 
 ## Usage
 
-To use `smart-commit`, you can run the following command:
+To use `quick-commit`, you can run the following command:
 
 ```bash
-smart-commit
+quick-commit
 ```
 
-This will open the `smart-commit` CLI interface where you can customise your commit message.
-Starting `smart-commit` with the `-a` flag additionally stages all modified files for the commit.
+This will open the `quick-commit` CLI interface where you can customise your commit message.
+Starting `quick-commit` with the `-a` flag additionally stages all modified files for the commit.
 
 If you wish to include a footer in your commit message, use the flag `--footer` (or enable it by default in the configuration file).
 
@@ -52,8 +52,8 @@ To mark breaking changes in your commit message, use the flag `--breaking`.
 
 ## Configuration
 
-`smart-commit` uses a configuration file to store your preferences. A configuration file can be stored locally
-for your project at `.smart-commit-config.yaml` or globally in your user-config directory (`/home/username/.config/smart-commit/config.yaml` for Linux, or `C:\Users\username\AppData\Roaming\smart-commit\config.yaml` for Windows).
+`quick-commit` uses a configuration file to store your preferences. A configuration file can be stored locally
+for your project at `.quick-commit-config.yaml` or globally in your user-config directory (`/home/username/.config/quick-commit/config.yaml` for Linux, or `C:\Users\username\AppData\Roaming\quick-commit\config.yaml` for Windows).
 
 An example configuration file that shows off all supported settings is as follows:
 

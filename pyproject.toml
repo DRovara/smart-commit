@@ -6,7 +6,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "smart-commit"
+name = "quick-commit"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -133,4 +133,4 @@ isort.required-imports = ["from __future__ import annotations"]
 convention = "google"
 
 [project.scripts]
-smart-commit = "commit:main"
+quick-commit = "commit:main"

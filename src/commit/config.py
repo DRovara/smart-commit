@@ -28,7 +28,7 @@ class NewGitmoji:
 
 @dataclass
 class Config:
-    """The configuration used for running smart-commit."""
+    """The configuration used for running quick-commit."""
 
     excluded_commit_types: list[str] = field(default_factory=list)
     new_commit_types: list[NewCommitType] = field(default_factory=list)
@@ -55,16 +55,16 @@ def find_config() -> Config:
     """
     current = Path.cwd()
     while True:
-        if (current / ".smart-commit-config.yaml").exists():
-            return parse_config(current / ".smart-commit-config.yaml")
-        if (current / ".smart-commit-config.yml").exists():
-            return parse_config(current / ".smart-commit-config.yml")
+        if (current / ".quick-commit-config.yaml").exists():
+            return parse_config(current / ".quick-commit-config.yaml")
+        if (current / ".quick-commit-config.yml").exists():
+            return parse_config(current / ".quick-commit-config.yml")
         if current.parent == current:
             break
         current = current.parent
 
     # no local config found, finding global config instead.
-    config_dir = Path(appdirs.user_config_dir("smart-commit", False))
+    config_dir = Path(appdirs.user_config_dir("quick-commit", False))
     if not config_dir.exists():
         config_dir.mkdir(parents=True)
     config_file = config_dir / "config.yaml"

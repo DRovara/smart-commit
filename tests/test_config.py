@@ -7,7 +7,7 @@ from commit import NewCommitType, NewGitmoji, parse_config
 
 def test_parse() -> None:
     """Test parsing of the configuration file."""
-    x = parse_config("tests/resources/.smart-commit-config.yaml")
+    x = parse_config("tests/resources/.quick-commit-config.yaml")
     assert x.excluded_commit_types == ["chore", "revert"]
     assert x.new_commit_types == [
         NewCommitType("my-commit-type", "My custom commit type"),
