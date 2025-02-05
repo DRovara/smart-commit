@@ -10,6 +10,16 @@ import git  # type: ignore[import-not-found]
 from commit import config
 
 
+def get_stages_files() -> list[str]:
+    """Get a list of all files staged for commit.
+
+    Returns:
+        list[str]: A list of all files staged for commit.
+    """
+    repo = get_repo()
+    return [item.a_path for item in repo.index.diff("HEAD")] if repo.head.is_valid() else ["."]
+
+
 def get_repo() -> git.Repo:
     """Get the current git repository object.
 

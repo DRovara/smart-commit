@@ -132,6 +132,10 @@ def run(include_footer: bool, breaking_change: bool, stage_all: bool, no_scope: 
         print("Error: Not a git repository.")
         sys.exit(1)
 
+    if not commits.get_stages_files():
+        print("Error: No files selected to commit.")
+        sys.exit(1)
+
     conf = config.find_config()
 
     if stage_all:
