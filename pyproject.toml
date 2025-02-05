@@ -133,4 +133,4 @@ isort.required-imports = ["from __future__ import annotations"]
 convention = "google"
 
 [project.scripts]
-commit = "commit:main"
+smart-commit = "commit:main"
