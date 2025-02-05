@@ -7,7 +7,7 @@ from commit import NewCommitType, NewGitmoji, parse_config
 
 def test_parse() -> None:
     """Test parsing of the configuration file."""
-    x = parse_config("tests/resources/.smart-commits.yaml")
+    x = parse_config("tests/resources/.smart-commit-config.yaml")
     assert x.excluded_commit_types == ["chore", "revert"]
     assert x.new_commit_types == [
         NewCommitType("my-commit-type", "My custom commit type"),
@@ -15,7 +15,7 @@ def test_parse() -> None:
     ]
     assert x.priority_commit_types == ["feat", "my-commit-type", "my-other-commit-type"]
 
-    assert x.excluded_scopes == ["my-excluded-scope"]
+    assert x.excluded_scopes == ["deps"]
     assert x.new_scopes == ["my-new-scope"]
     assert x.prohibit_no_scope
 
